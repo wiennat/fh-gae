@@ -19,11 +19,13 @@ class UploadPage(webapp.RequestHandler):
     self.response.out.write(template.render('templates/upload.html', {}))
 
   def post(self):
-    filelength = len(self.request.get('file'))
+    form = cgi.FieldStorage()    
+    filelength = len(form['file'].value)
     firstkey = 0
-    data = self.request.get('file')
+
+    data = form['file'].value
     this = 0
-    last = None
+    last = None    
     while this < filelength:
       if this + PARTSIZE > filelength:
         next = filelength
@@ -31,9 +33,10 @@ class UploadPage(webapp.RequestHandler):
         next = this + PARTSIZE
       uf = UploadedFile()
       part = data[this:next]
+      
       uf.content = part
-      uf.type = self.request.POST['file'].type
-      uf.filename = self.request.POST['file'].filename
+      uf.type = form['file'].type
+      uf.filename = form['file'].filename
       uf.size = next - this
       this = next
       uf.put()
